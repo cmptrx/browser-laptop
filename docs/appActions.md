@@ -620,6 +620,28 @@ Dispatches a message when a download is being redownloaded
 
 
 
+### clipboardTextCopied(text) 
+
+Dispatches a message when text is updated to the clipboard
+
+**Parameters**
+
+**text**: `string`, clipboard text which is copied
+
+
+
+### tabCloned(tabId, options) 
+
+Dispatches a message when a tab is being cloned
+
+**Parameters**
+
+**tabId**: `number`, The tabId of the tab to clone
+
+**options**: `object`, object containing options such as acive, back, and forward booleans
+
+
+
 
 * * *
 

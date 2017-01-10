@@ -548,6 +548,12 @@ function shouldIgnoreUrl (details) {
     return true
   }
 
+  // data:, is a special origin from SecurityOrigin::urlWithUniqueSecurityOrigin
+  // and usually occurs when there is an https in an http main frame
+  if (details.firstPartyUrl === 'data:,') {
+    return false
+  }
+
   // Ensure host is well-formed (RFC 1035) and has a non-empty hostname
   try {
     const firstPartyUrl = urlParse(details.firstPartyUrl)
@@ -705,7 +711,7 @@ module.exports.getMainFrameUrl = (details) => {
     return details.url
   }
   const tab = webContents.fromTabID(details.tabId)
-  if (tab) {
+  if (tab && !tab.isDestroyed()) {
     return tab.getURL()
   }
   return null

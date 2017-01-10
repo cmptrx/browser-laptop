@@ -35,7 +35,8 @@ let generateBraveManifest = () => {
     manifest_version: 2,
     version: '1.0',
     background: {
-      scripts: [ 'content/scripts/idleHandler.js' ]
+      scripts: [ 'content/scripts/idleHandler.js' ],
+      persistent: false
     },
     content_scripts: [
       {
@@ -162,11 +163,21 @@ let generateBraveManifest = () => {
 let generateTorrentManifest = () => {
   let cspDirectives = {
     'default-src': '\'self\'',
-    'media-src': '\'self\' http://localhost:*',
-    'frame-src': 'http://localhost:*',
+    'media-src': '\'self\'',
     'form-action': '\'none\'',
     'referrer': 'no-referrer',
-    'style-src': '\'self\' \'unsafe-inline\''
+    'style-src': '\'self\' \'unsafe-inline\'',
+    'frame-src': '\'self\''
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    // allow access to webpack dev server resources
+    let devServer = 'localhost:' + process.env.npm_package_config_port
+    cspDirectives['default-src'] = '\'self\' http://' + devServer
+    cspDirectives['connect-src'] = '\'self\' http://' + devServer + ' ws://' + devServer
+    cspDirectives['media-src'] = '\'self\' http://' + devServer
+    cspDirectives['frame-src'] = '\'self\' http://' + devServer
+    cspDirectives['style-src'] = '\'self\' \'unsafe-inline\' http://' + devServer
   }
 
   return {

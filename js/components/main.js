@@ -585,9 +585,9 @@ class Main extends ImmutableComponent {
     const isNavigatable = isNavigatableAboutPage(getBaseUrl(activeFrame.get('location')))
     if (e && eventUtil.isForSecondaryAction(e) && isNavigatable) {
       if (activeFrame && activeFrame.get(navCheckProp)) {
-        currentWindow.webContents.send(messages.SHORTCUT_ACTIVE_FRAME_CLONE, {
+        appActions.tabCloned(activeFrame.get('tabId'), {
           [navType]: true,
-          openInForeground: !!e.shiftKey
+          active: !!e.shiftKey
         })
       }
     } else {
@@ -1202,6 +1202,8 @@ class Main extends ImmutableComponent {
             sortedFrames.map((frame) =>
               <Frame
                 ref={(node) => { this.frames[frame.get('key')] = node }}
+                urlBarFocused={activeFrame && activeFrame.getIn(['navbar', 'urlbar', 'focused'])}
+                tabIndex={FrameStateUtil.getFrameIndex(this.props.windowState, frame.get('key'))}
                 prefOpenInForeground={getSetting(settings.SWITCH_TO_NEW_TABS)}
                 onCloseFrame={this.onCloseFrame}
                 frameKey={frame.get('key')}

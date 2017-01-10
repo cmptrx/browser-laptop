@@ -870,6 +870,10 @@ class TabsTab extends ImmutableComponent {
 class PaymentsTab extends ImmutableComponent {
   constructor () {
     super()
+    this.state = {
+      FirstRecoveryKey: '',
+      SecondRecoveryKey: ''
+    }
 
     this.printKeys = this.printKeys.bind(this)
     this.saveKeys = this.saveKeys.bind(this)
@@ -945,7 +949,7 @@ class PaymentsTab extends ImmutableComponent {
     const onButtonClick = this.props.ledgerData.get('created')
       ? this.props.showOverlay.bind(this, 'addFunds')
       : (this.props.ledgerData.get('creating') ? () => {} : this.createWallet)
-    return <Button l10nId={buttonText} className='primaryButton wideButton addFunds' onClick={onButtonClick.bind(this)} disabled={this.props.ledgerData.get('creating')} />
+    return <Button l10nId={buttonText} className='primaryButton addFunds' onClick={onButtonClick.bind(this)} disabled={this.props.ledgerData.get('creating')} />
   }
 
   get paymentHistoryButton () {
@@ -1110,7 +1114,7 @@ class PaymentsTab extends ImmutableComponent {
         <span data-l10n-id='ledgerBackupContent' />
         <div className='copyKeyContainer'>
           <div className='copyContainer'>
-            <Button l10nId='copy' className='copyButton whiteButton wideButton' onClick={this.copyToClipboard.bind(this, paymentId)} />
+            <Button l10nId='copy' className='copyButton whiteButton' onClick={this.copyToClipboard.bind(this, paymentId)} />
           </div>
           <div className='keyContainer'>
             <h3 data-l10n-id='firstKey' />
@@ -1119,7 +1123,7 @@ class PaymentsTab extends ImmutableComponent {
         </div>
         <div className='copyKeyContainer'>
           <div className='copyContainer'>
-            <Button l10nId='copy' className='copyButton whiteButton wideButton' onClick={this.copyToClipboard.bind(this, passphrase)} />
+            <Button l10nId='copy' className='copyButton whiteButton' onClick={this.copyToClipboard.bind(this, passphrase)} />
           </div>
           <div className='keyContainer'>
             <h3 data-l10n-id='secondKey' />
@@ -1221,15 +1225,30 @@ class PaymentsTab extends ImmutableComponent {
     return `${balance} BTC`
   }
 
-  get sidebarContent () {
-    return <div className='paymentsSidebar'>
-      <h2 data-l10n-id='paymentsSidebarText1' />
-      <div data-l10n-id='paymentsSidebarText2' />
-      <a href='https://www.privateinternetaccess.com/' target='_blank'><div className='paymentsSidebarPIA' /></a>
-      <div data-l10n-id='paymentsSidebarText3' />
-      <a href='https://www.bitgo.com/' target='_blank'><div className='paymentsSidebarBitgo' /></a>
-      <div data-l10n-id='paymentsSidebarText4' />
-      <a href='https://www.coinbase.com/' target='_blank'><div className='paymentsSidebarCoinbase' /></a>
+  get disabledContent () {
+    return <div className='disabledContent'>
+      <div className='paymentsMessage'>
+        <h3 data-l10n-id='paymentsWelcomeTitle' />
+        <div data-l10n-id='paymentsWelcomeText1' />
+        <div className='boldText' data-l10n-id='paymentsWelcomeText2' />
+        <div data-l10n-id='paymentsWelcomeText3' />
+        <div data-l10n-id='paymentsWelcomeText4' />
+        <div data-l10n-id='paymentsWelcomeText5' />
+        <div>
+          <span data-l10n-id='paymentsWelcomeText6' />&nbsp;
+          <a href='https://brave.com/Payments_FAQ.html' target='_blank' data-l10n-id='paymentsWelcomeLink' />&nbsp;
+          <span data-l10n-id='paymentsWelcomeText7' />
+        </div>
+      </div>
+      <div className='paymentsSidebar'>
+        <h2 data-l10n-id='paymentsSidebarText1' />
+        <div data-l10n-id='paymentsSidebarText2' />
+        <a href='https://www.privateinternetaccess.com/' target='_blank'><div className='paymentsSidebarPIA' /></a>
+        <div data-l10n-id='paymentsSidebarText3' />
+        <a href='https://www.bitgo.com/' target='_blank'><div className='paymentsSidebarBitgo' /></a>
+        <div data-l10n-id='paymentsSidebarText4' />
+        <a href='https://www.coinbase.com/' target='_blank'><div className='paymentsSidebarCoinbase' /></a>
+      </div>
     </div>
   }
 
@@ -1333,27 +1352,14 @@ class PaymentsTab extends ImmutableComponent {
             <span data-l10n-id='off' />
             <SettingCheckbox dataL10nId='on' prefKey={settings.PAYMENTS_ENABLED} settings={this.props.settings} onChangeSetting={this.props.onChangeSetting} />
           </div>
-          { this.props.ledgerData.get('created') && this.enabled ? <Button l10nId='advancedSettings' className='advancedSettings whiteButton inlineButton wideButton' onClick={this.props.showOverlay.bind(this, 'advancedSettings')} /> : null }
+          { this.props.ledgerData.get('created') && this.enabled ? <Button l10nId='advancedSettings' className='advancedSettings whiteButton' onClick={this.props.showOverlay.bind(this, 'advancedSettings')} /> : null }
         </div>
       </div>
       {
         this.enabled
           ? this.enabledContent
-          : <div className='paymentsMessage'>
-            <h3 data-l10n-id='paymentsWelcomeTitle' />
-            <div data-l10n-id='paymentsWelcomeText1' />
-            <div className='boldText' data-l10n-id='paymentsWelcomeText2' />
-            <div data-l10n-id='paymentsWelcomeText3' />
-            <div data-l10n-id='paymentsWelcomeText4' />
-            <div data-l10n-id='paymentsWelcomeText5' />
-            <div>
-              <span data-l10n-id='paymentsWelcomeText6' />&nbsp;
-              <a href='https://brave.com/Payments_FAQ.html' target='_blank' data-l10n-id='paymentsWelcomeLink' />&nbsp;
-              <span data-l10n-id='paymentsWelcomeText7' />
-            </div>
-          </div>
+          : this.disabledContent
       }
-      {this.enabled ? null : this.sidebarContent}
     </div>
   }
 }
@@ -1795,7 +1801,6 @@ class PreferenceNavigation extends ImmutableComponent {
 class AboutPreferences extends React.Component {
   constructor () {
     super()
-    let hash = window.location.hash ? window.location.hash.slice(1) : ''
     this.state = {
       bitcoinOverlayVisible: false,
       qrcodeOverlayVisible: false,
@@ -1804,7 +1809,7 @@ class AboutPreferences extends React.Component {
       ledgerBackupOverlayVisible: false,
       ledgerRecoveryOverlayVisible: false,
       addFundsOverlayVisible: false,
-      preferenceTab: hash.toUpperCase() in preferenceTabs ? hash : preferenceTabs.GENERAL,
+      preferenceTab: this.tabFromCurrentHash,
       hintNumber: this.getNextHintNumber(),
       languageCodes: Immutable.Map(),
       flashInstalled: false,
@@ -1833,13 +1838,34 @@ class AboutPreferences extends React.Component {
     })
     ipc.send(messages.REQUEST_LANGUAGE)
     this.onChangeSetting = this.onChangeSetting.bind(this)
+    this.updateTabFromAnchor = this.updateTabFromAnchor.bind(this)
+  }
+
+  componentDidMount () {
+    window.addEventListener('popstate', this.updateTabFromAnchor)
+  }
+
+  componentWillUnmount () {
+    window.removeEventListener('popstate', this.updateTabFromAnchor)
+  }
+
+  updateTabFromAnchor () {
+    this.setState({
+      preferenceTab: this.tabFromCurrentHash
+    })
+  }
+
+  get hash () {
+    return window.location.hash ? window.location.hash.slice(1) : ''
+  }
+
+  get tabFromCurrentHash () {
+    return this.hash.toUpperCase() in preferenceTabs ? this.hash : preferenceTabs.GENERAL
   }
 
   changeTab (preferenceTab) {
     window.location.hash = preferenceTab.toLowerCase()
-    this.setState({
-      preferenceTab
-    })
+    this.updateTabFromAnchor()
   }
 
   refreshHint () {
@@ -1868,6 +1894,8 @@ class AboutPreferences extends React.Component {
     })
     aboutActions.changeSetting(key, value)
     if (key === settings.HARDWARE_ACCELERATION_ENABLED ||
+        key === settings.DO_NOT_TRACK ||
+        key === settings.LANGUAGE ||
         key === settings.PDFJS_ENABLED || key === settings.TORRENT_VIEWER_ENABLED ||
         key === settings.SMOOTH_SCROLL_ENABLED || key === settings.SEND_CRASH_REPORTS) {
       ipc.send(messages.PREFS_RESTART, key, value)

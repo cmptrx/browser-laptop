@@ -8,7 +8,7 @@
 let ready = false
 
 // Setup the crash handling
-// const CrashHerald = require('./crash-herald')
+const CrashHerald = require('./crash-herald')
 
 const handleUncaughtError = (error) => {
   var message, ref, stack
@@ -247,7 +247,7 @@ loadAppStatePromise.then((initialState) => {
   }
   if (initialState.settings[SEND_CRASH_REPORTS] !== false) {
     console.log('Crash reporting enabled')
-    // CrashHerald.init()
+    CrashHerald.init()
   } else {
     console.log('Crash reporting disabled')
   }
@@ -476,7 +476,9 @@ app.on('ready', () => {
         prefsRestartCallbacks[message] = (buttonIndex, persist) => {
           delete prefsRestartCallbacks[message]
           if (buttonIndex === 0) {
-            app.relaunch({args: process.argv.slice(1) + ['--relaunch']})
+            const args = process.argv.slice(1)
+            args.push('--relaunch')
+            app.relaunch({args})
             app.quit()
           } else {
             delete prefsRestartLastValue[config]

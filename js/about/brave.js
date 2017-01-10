@@ -43,7 +43,7 @@ class AboutBrave extends React.Component {
       <div className='siteDetailsPageContent aboutAbout'>
         <div className='title'>
           <span className='sectionTitle' data-l10n-id='versionInformation' />
-          <span className='fa fa-clipboard' title='Copy password to clipboard' onClick={this.onCopy} />
+          <span className='fa fa-clipboard' data-l10n-id='copyToClipboard' onClick={this.onCopy} />
         </div>
         <SortableTable
           headings={['Name', 'Version']}
@@ -53,7 +53,9 @@ class AboutBrave extends React.Component {
               value: entry.get('name')
             },
             {
-              html: entry.get('version'),
+              html: entry.get('name') === 'rev'
+                ? <a target='_blank' href={`https://github.com/brave/browser-laptop/commit/${entry.get('version')}`}>{entry.get('version') && entry.get('version').substring(0, 7) || ''}</a>
+                : entry.get('version'),
               value: entry.get('version')
             }
           ])}

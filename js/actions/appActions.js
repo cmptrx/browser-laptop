@@ -763,7 +763,32 @@ const appActions = {
       actionType: appConstants.APP_DOWNLOAD_REDOWNLOADED,
       downloadId
     })
+  },
+
+  /**
+   * Dispatches a message when text is updated to the clipboard
+   * @param {string} text - clipboard text which is copied
+   */
+  clipboardTextCopied: function (text) {
+    AppDispatcher.dispatch({
+      actionType: appConstants.APP_CLIPBOARD_TEXT_UPDATED,
+      text
+    })
+  },
+
+  /**
+   * Dispatches a message when a tab is being cloned
+   * @param {number} tabId - The tabId of the tab to clone
+   * @param {object} options - object containing options such as acive, back, and forward booleans
+   */
+  tabCloned: function (tabId, options) {
+    AppDispatcher.dispatch({
+      actionType: appConstants.APP_TAB_CLONED,
+      tabId,
+      options
+    })
   }
+
 }
 
 module.exports = appActions

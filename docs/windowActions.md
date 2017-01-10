@@ -198,16 +198,6 @@ Dispatches a message to the store to indicate that the webview entered full scre
 
 
 
-### setNavBarFocused(focused) 
-
-Dispatches a message to the store to indicate if the navigation bar is focused.
-
-**Parameters**
-
-**focused**: `boolean`, true if the navigation bar should be considered as focused
-
-
-
 ### newFrame(frameOpts, openInForeground) 
 
 Dispatches a message to the store to create a new frame
@@ -218,18 +208,6 @@ Dispatches a message to the store to create a new frame
                  These may not all be hooked up in Electron yet.
 
 **openInForeground**: `boolean`, true if the new frame should become the new active frame
-
-
-
-### cloneFrame(frameProps, guestInstanceId) 
-
-Dispatches a message to the store to clone an existing frame
-
-**Parameters**
-
-**frameProps**: `Object`, The properties of the frame to clone
-
-**guestInstanceId**: `number`, The guestInstanceId of the cloned webcontents
 
 
 

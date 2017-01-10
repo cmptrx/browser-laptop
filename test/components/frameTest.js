@@ -1,7 +1,7 @@
 /* global describe, it, before */
 
 const Brave = require('../lib/brave')
-const {urlInput, backButton, forwardButton} = require('../lib/selectors')
+const {urlInput, backButton, forwardButton, pinnedTabsTabs} = require('../lib/selectors')
 const messages = require('../../js/constants/messages')
 
 describe('frame tests', function () {
@@ -19,17 +19,13 @@ describe('frame tests', function () {
           .tabByIndex(0)
           .loadUrl(this.url1)
           .windowByUrl(Brave.browserWindowUrl)
-          .ipcSend(messages.SHORTCUT_ACTIVE_FRAME_CLONE)
+          .cloneTabByIndex(0)
       })
 
       it('opens a new foreground tab', function * () {
         let url1 = this.url1
         yield this.app.client
-          .waitUntil(function () {
-            return this.getTabCount().then((count) => {
-              return count === 2
-            })
-          })
+          .waitForTabCount(2)
           .waitUntil(function () {
             return this.tabByIndex(1).getUrl().then((url) => {
               return url === url1
@@ -38,13 +34,9 @@ describe('frame tests', function () {
           .windowByUrl(Brave.browserWindowUrl)
           .waitForExist(this.webview1)
           .waitForExist(this.webview2)
-          .waitForExist(this.webview2 + '[src="' + this.url1 + '"]')
-      })
-
-      it('uses the cloned webcontents', function * () {
-        yield this.app.client
+          .tabByIndex(1)
+          .waitForUrl(this.url1)
           .windowByUrl(Brave.browserWindowUrl)
-          .waitForExist(this.webview2 + '[data-guest-instance-id]')
       })
     })
 
@@ -53,7 +45,6 @@ describe('frame tests', function () {
 
       before(function * () {
         this.clickWithTargetPage = Brave.server.url('click_with_target.html')
-        this.page1 = Brave.server.url('page1.html')
 
         yield setup(this.app.client)
         yield this.app.client
@@ -68,12 +59,8 @@ describe('frame tests', function () {
         yield this.app.client
           .ipcSend('shortcut-set-active-frame-by-index', 0)
           .windowByUrl(Brave.browserWindowUrl)
-          .ipcSend(messages.SHORTCUT_ACTIVE_FRAME_CLONE)
-          .waitUntil(function () {
-            return this.getTabCount().then((count) => {
-              return count === 3
-            })
-          })
+          .cloneTabByIndex(0)
+          .waitForTabCount(3)
       })
 
       it('inserts after the tab to clone', function * () {
@@ -104,17 +91,21 @@ describe('frame tests', function () {
           .loadUrl(this.url1)
           .loadUrl(this.url2)
           .windowByUrl(Brave.browserWindowUrl)
-          .ipcSend(messages.SHORTCUT_ACTIVE_FRAME_CLONE)
+          .cloneTabByIndex(0)
       })
 
       it('preserves the history', function * () {
         yield this.app.client
           .windowByUrl(Brave.browserWindowUrl)
-          .waitForExist(this.webview2 + '[src="' + this.url2 + '"]')
+          .tabByIndex(1)
+          .waitForUrl(this.url2)
+          .windowByUrl(Brave.browserWindowUrl)
           .waitForExist(backButton + ':not([disabled])')
           .waitForExist(forwardButton + '[disabled]')
           .click(backButton)
-          .waitForExist(this.webview2 + '[src="' + this.url1 + '"]')
+          .tabByIndex(1)
+          .waitForUrl(this.url1)
+          .windowByUrl(Brave.browserWindowUrl)
       })
     })
 
@@ -159,17 +150,21 @@ describe('frame tests', function () {
           .loadUrl(this.url1)
           .loadUrl(this.url2)
           .windowByUrl(Brave.browserWindowUrl)
-          .ipcSend(messages.SHORTCUT_ACTIVE_FRAME_CLONE, { back: true })
+          .cloneTabByIndex(0, {back: true})
       })
 
       it('preserves proper navigation', function * () {
         yield this.app.client
           .windowByUrl(Brave.browserWindowUrl)
-          .waitForExist(this.webview2 + '[src="' + this.url1 + '"]')
+          .tabByIndex(1)
+          .waitForUrl(this.url1)
+          .windowByUrl(Brave.browserWindowUrl)
           .waitForExist(backButton + ':not([disabled])')
           .waitForExist(forwardButton + ':not([disabled])')
           .click(forwardButton)
-          .waitForExist(this.webview2 + '[src="' + this.url2 + '"]')
+          .tabByIndex(1)
+          .waitForUrl(this.url2)
+          .windowByUrl(Brave.browserWindowUrl)
           .waitForExist(backButton + ':not([disabled])')
           .waitForExist(forwardButton + '[disabled]')
       })
@@ -197,11 +192,7 @@ describe('frame tests', function () {
     it('should open in new tab', function * () {
       yield this.app.client
         .ipcSend(messages.SHORTCUT_ACTIVE_FRAME_VIEW_SOURCE)
-        .waitUntil(function () {
-          return this.getTabCount().then((count) => {
-            return count === 2
-          })
-        })
+        .waitForTabCount(2)
         .windowByUrl(Brave.browserWindowUrl)
         .waitForExist(this.webview2)
     })
@@ -209,12 +200,9 @@ describe('frame tests', function () {
     it('open from pinned tab', function * () {
       yield this.app.client
         .setPinned(this.url, true)
+        .waitForElementCount(pinnedTabsTabs, 1)
         .ipcSend(messages.SHORTCUT_ACTIVE_FRAME_VIEW_SOURCE)
-        .waitUntil(function () {
-          return this.getTabCount().then((count) => {
-            return count === 2
-          })
-        })
+        .waitForTabCount(2)
         .windowByUrl(Brave.browserWindowUrl)
         .waitForExist(this.webview2)
     })

@@ -7,7 +7,6 @@
 const AppDispatcher = require('../dispatcher/appDispatcher')
 const windowConstants = require('../constants/windowConstants')
 const appActions = require('../actions/appActions')
-const webviewActions = require('../actions/webviewActions')
 const messages = require('../constants/messages')
 const siteTags = require('../constants/siteTags')
 const siteUtil = require('../state/siteUtil')
@@ -266,18 +265,6 @@ const windowActions = {
   },
 
   /**
-   * Dispatches a message to the store to indicate if the navigation bar is focused.
-   *
-   * @param {boolean} focused - true if the navigation bar should be considered as focused
-   */
-  setNavBarFocused: function (focused) {
-    dispatch({
-      actionType: windowConstants.WINDOW_SET_NAVBAR_FOCUSED,
-      focused
-    })
-  },
-
-  /**
    * Dispatches a message to the store to create a new frame
    *
    * @param {Object} frameOpts - An object of frame options such as isPrivate, element, and tab features.
@@ -288,21 +275,6 @@ const windowActions = {
     dispatch({
       actionType: windowConstants.WINDOW_NEW_FRAME,
       frameOpts: frameOpts,
-      openInForeground
-    })
-  },
-
-  /**
-   * Dispatches a message to the store to clone an existing frame
-   *
-   * @param {Object} frameProps - The properties of the frame to clone
-   * @param {number} guestInstanceId - The guestInstanceId of the cloned webcontents
-   */
-  cloneFrame: function (frameProps, guestInstanceId, openInForeground) {
-    dispatch({
-      actionType: windowConstants.WINDOW_CLONE_FRAME,
-      frameOpts: frameProps.toJS ? frameProps.toJS() : frameProps,
-      guestInstanceId,
       openInForeground
     })
   },
@@ -321,7 +293,6 @@ const windowActions = {
     }
     // If the frame was full screen, exit
     if (frameProps && frameProps.get('isFullScreen')) {
-      webviewActions.setFullScreen(false)
       this.setFullScreen(frameProps, false)
     }
     // Unless a caller explicitly specifies to close a pinned frame, then

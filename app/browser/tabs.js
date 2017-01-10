@@ -1,5 +1,6 @@
 const appActions = require('../../js/actions/appActions')
 const messages = require('../..//js/constants/messages')
+const Immutable = require('immutable')
 const tabState = require('../common/state/tabState')
 const {app, extensions} = require('electron')
 const { makeImmutable } = require('../common/state/immutableUtil')
@@ -32,10 +33,11 @@ const updateTab = (tabId) => {
 
 const api = {
   init: (state, action) => {
-    process.on('open-url-from-tab', (e, source, targetUrl) => {
+    process.on('open-url-from-tab', (e, source, targetUrl, disposition) => {
       api.create({
         url: targetUrl,
-        openerTabId: source.getId()
+        openerTabId: source.getId(),
+        active: disposition !== 'background-tab'
       })
     })
 
@@ -50,12 +52,21 @@ const api = {
         location = 'about:blank'
       }
 
+      const openerTabId = !source.isDestroyed() ? source.getId() : -1
+      let newTabValue = getTabValue(newTab.getId())
+      let index
+      if (newTabValue && newTabValue.get('index') !== -1) {
+        index = newTabValue.get('index')
+      }
+
       // TODO(bridiver) - handle pinned property?? - probably through tabValue
       const frameOpts = {
         location,
         partition: newTab.session.partition,
         guestInstanceId: newTab.guestInstanceId,
-        disposition
+        openerTabId,
+        disposition,
+        index
       }
 
       if (disposition === 'new-window' || disposition === 'new-popup') {
@@ -75,6 +86,9 @@ const api = {
       tab.once('crashed', cleanupWebContents.bind(null, tabId))
       tab.once('close', cleanupWebContents.bind(null, tabId))
       tab.on('set-active', function (evt, active) {
+        updateTab(tabId)
+      })
+      tab.on('set-tab-index', function (evt, index) {
         updateTab(tabId)
       })
       tab.on('page-favicon-updated', function (e, favicons) {
@@ -133,6 +147,24 @@ const api = {
       }
     })
 
+    process.on('on-tab-created', (tab, options) => {
+      if (tab.isDestroyed()) {
+        return
+      }
+
+      if (options.index !== undefined) {
+        tab.setTabIndex(options.index)
+      }
+
+      tab.once('did-attach', () => {
+        if (options.back) {
+          tab.goBack()
+        } else if (options.forward) {
+          tab.goForward()
+        }
+      })
+    })
+
     return state
   },
 
@@ -146,11 +178,28 @@ const api = {
     let muted = action.get('muted')
     let tabId = frameProps.get('tabId')
     let tab = api.getWebContents(tabId)
-    if (tab) {
+    if (tab && !tab.isDestroyed()) {
       tab.setAudioMuted(muted)
       let tabValue = getTabValue(tabId)
       return tabState.updateTab(state, { tabValue })
     }
+    return state
+  },
+
+  clone: (state, action) => {
+    action = makeImmutable(action)
+    const tabId = action.get('tabId')
+    let options = action.get('options') || Immutable.Map()
+    let tabValue = getTabValue(tabId)
+    if (tabValue && tabValue.get('index') !== undefined) {
+      options = options.set('index', tabValue.get('index') + 1)
+    }
+    const tab = api.getWebContents(tabId)
+    if (tab && !tab.isDestroyed()) {
+      tab.clone(options.toJS(), (newTab) => {
+      })
+    }
+    return state
   },
 
   closeTab: (state, action) => {

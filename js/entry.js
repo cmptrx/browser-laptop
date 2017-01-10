@@ -21,28 +21,13 @@ require('../less/notificationBar.less')
 require('../less/addEditBookmark.less')
 require('../node_modules/font-awesome/css/font-awesome.css')
 
-// Enable or disable crash reporting based on platform
-// const setupCrashReporting = () => {
-//   // if (process.platform === 'darwin') {
-//   //   // Setup the crash handling for mac renderer processes
-//   //   // https://github.com/electron/electron/blob/master/docs/api/crash-reporter.md#crashreporterstartoptions
-//   //   console.log('macOS renderer crash reporting initialized')
-//   //   require('../app/crash-herald').init()
-//   // }
-// }
-
-// // Notify that renderer crash reporting is disabled
-// const disableCrashReporting = () => {
-//   console.log('Disabling renderer crash reporting')
-// }
-
 const React = require('react')
 const ReactDOM = require('react-dom')
 const Window = require('./components/window')
 const electron = require('electron')
-// const currentWindow = require('../app/renderer/currentWindow')
+const currentWindow = require('../app/renderer/currentWindow')
 const ipc = electron.ipcRenderer
-// // const webFrame = electron.webFrame
+const webFrame = electron.webFrame
 const windowStore = require('./stores/windowStore')
 const appStoreRenderer = require('./stores/appStoreRenderer')
 const windowActions = require('./actions/windowActions')
@@ -51,11 +36,16 @@ const Immutable = require('immutable')
 const patch = require('immutablepatch')
 const l10n = require('./l10n')
 
-// // // don't allow scaling or zooming of the ui
-// // webFrame.setPageScaleLimits(1, 1)
-// // webFrame.setZoomLevelLimits(0, 0)
-// // // override any default zoom level changes
-// // currentWindow.webContents.setZoomLevel(0.0)
+try {
+  // don't allow scaling or zooming of the ui
+  webFrame.setPageScaleLimits(1, 1)
+  webFrame.setZoomLevelLimits(0, 0)
+  // override any default zoom level changes
+  currentWindow.webContents.setZoomLevel(0.0)
+} catch (e) {
+  // TODO: Remove this exception wrapping once we update pre-built
+  console.error('Could not set zoom limits, you are using an old electron version')
+}
 
 l10n.init()
 
@@ -86,12 +76,6 @@ window.addEventListener('beforeunload', function () {
 })
 
 ipc.on(messages.INITIALIZE_WINDOW, (e, disposition, appState, frames, initWindowState) => {
-  // Configure renderer crash reporting
-  // if (appState.settings[require('./constants/settings').SEND_CRASH_REPORTS] !== false) {
-  //   setupCrashReporting()
-  // } else {
-  //   disableCrashReporting()
-  // }
   appStoreRenderer.state = Immutable.fromJS(appState)
   ReactDOM.render(
     <Window includePinnedSites={disposition !== 'new-popup'} frames={frames} initWindowState={initWindowState} />,

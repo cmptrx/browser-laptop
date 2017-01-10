@@ -13,8 +13,8 @@ module.exports = [
   'cppunitlite',
   'caniuse-db',
   'spectron',
-  'abp-filter-parser-cpp/(node_modules|test|perf|sample|scripts|test|vendor|ABPFilterParserData.dat)',
-  'abp-filter-parser-cpp/build/Release/(obj|obj.target|.deps|abp-filter-parser-cpp.pdb|abp-filter-parser-cpp.map)',
+  'ad-block/(node_modules|test|perf|sample|scripts|test|vendor|ABPFilterParserData.dat)',
+  'ad-block/build/Release/(obj|obj.target|.deps|ad-block.pdb|ad-block.map)',
   'tracking-protection/(node_modules|test|data|scripts|vendor)',
   'tracking-protection/build/node_modules',
   'tracking-protection/build/Release/(tp_node_addon.pdb|sample.pdb|test.pdb|tp_node_addon.map|sample.map|test.map|hashset-cpp.map|sample.exe|test.exe)',
@@ -43,7 +43,7 @@ module.exports = [
   'electron-builder',
   'electron-prebuilt',
   'electron-rebuild',
-  'muon-winstaller',
+  'electron-winstaller',
   'electron-winstaller-fixed',
   'electron-installer-redhat',
   'flow-bin',
@@ -54,5 +54,6 @@ module.exports = [
   'react-addons-test-utils',
   'enzyme',
   'leveldown',
+  'git-rev-sync',
   'sqlite3'
 ]

@@ -501,9 +501,7 @@ function tabTemplateInit (frameProps) {
         label: locale.translation('clone'),
         click: (item, focusedWindow) => {
           if (focusedWindow) {
-            focusedWindow.webContents.send(messages.SHORTCUT_FRAME_CLONE, frameKey, {
-              openInForeground: true
-            })
+            appActions.tabCloned(frameProps.get('tabId'))
           }
         }
       })
@@ -848,7 +846,7 @@ const copyAddressMenuItem = (label, location) => {
     label: locale.translation(label),
     click: (item, focusedWindow) => {
       if (focusedWindow && location) {
-        clipboard.writeText(location)
+        appActions.clipboardTextCopied(location)
       }
     }
   }
@@ -858,7 +856,7 @@ const copyEmailAddressMenuItem = (location) => {
   return {
     label: locale.translation('copyEmailAddress'),
     click: () => {
-      clipboard.writeText(location.substring('mailto:'.length, location.length))
+      appActions.clipboardTextCopied(location.substring('mailto:'.length, location.length))
     }
   }
 }
